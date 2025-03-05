@@ -1,0 +1,364 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Prateek Emitra Cafe - Shop Management</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <style>
+        body {
+            font-family: 'Quicksand', sans-serif;
+            background-color: #f0f2f5;
+        }
+        .custom-card {
+            background-color: white;
+            border-radius: 15px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            border: 1px solid #e2e8f0;
+        }
+        .loader {
+            display: none;
+            border: 4px solid #f3f3f3;
+            border-radius: 50%;
+            border-top: 4px solid #4f46e5;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        .login-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.8);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+    </style>
+</head>
+<body class="min-h-screen">
+    <!-- Login Screen -->
+    <div id="loginScreen" class="login-overlay">
+        <div class="custom-card p-8 w-96">
+            <h2 class="text-2xl font-bold text-center mb-6">Login Required</h2>
+            <form id="loginForm" class="space-y-4">
+                <div>
+                    <label class="block text-gray-700">Password</label>
+                    <input type="password" id="loginPassword" class="w-full p-2 border rounded-lg" required>
+                </div>
+                <button type="submit" class="w-full bg-indigo-600 text-white py-2 rounded-lg hover:bg-indigo-700">Login</button>
+                <button type="button" id="forgotPassword" class="w-full text-indigo-600 text-sm">Forgot Password?</button>
+            </form>
+        </div>
+    </div>
+
+    <div class="container mx-auto px-4 py-8">
+        <!-- Header -->
+        <div class="text-center mb-8">
+            <h1 class="text-3xl font-bold text-indigo-600"><i class="bi bi-shop"></i> Prateek Emitra Cafe</h1>
+            <p class="text-gray-600" id="currentDateTime"></p>
+        </div>
+
+        <!-- Total Balances -->
+        <div class="custom-card p-6 mb-8">
+            <h2 class="text-xl font-bold text-indigo-600 mb-4">Total Balances</h2>
+            <div class="grid md:grid-cols-3 gap-4">
+                <div class="p-3 bg-indigo-50 rounded-lg">
+                    <h3 class="font-semibold">Emitra Balance</h3>
+                    <p id="emitraBalance">₹0</p>
+                </div>
+                <div class="p-3 bg-indigo-50 rounded-lg">
+                    <h3 class="font-semibold">Cash Balance</h3>
+                    <p id="cashBalance">₹0</p>
+                </div>
+                <div class="p-3 bg-indigo-50 rounded-lg">
+                    <h3 class="font-semibold">AEPS Balance</h3>
+                    <p id="aepsBalance">₹0</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Account Balances -->
+        <div class="custom-card p-6 mb-8">
+            <h2 class="text-xl font-bold text-indigo-600 mb-4">Account Balances</h2>
+            <div class="grid md:grid-cols-3 gap-4">
+                <div class="p-3 bg-indigo-50 rounded-lg">
+                    <h3 class="font-semibold">Account 77</h3>
+                    <p id="account77">₹0</p>
+                </div>
+                <div class="p-3 bg-indigo-50 rounded-lg">
+                    <h3 class="font-semibold">Account 197</h3>
+                    <p id="account197">₹0</p>
+                </div>
+                <div class="p-3 bg-indigo-50 rounded-lg">
+                    <h3 class="font-semibold">Account 196</h3>
+                    <p id="account196">₹0</p>
+                </div>
+                <div class="p-3 bg-indigo-50 rounded-lg">
+                    <h3 class="font-semibold">Account 2969</h3>
+                    <p id="account2969">₹0</p>
+                </div>
+                <div class="p-3 bg-indigo-50 rounded-lg">
+                    <h3 class="font-semibold">SBI Account</h3>
+                    <p id="accountSbi">₹0</p>
+                </div>
+                <div class="p-3 bg-indigo-50 rounded-lg">
+                    <h3 class="font-semibold">Kotak 2529</h3>
+                    <p id="accountKotak">₹0</p>
+                </div>
+                <div class="p-3 bg-indigo-50 rounded-lg">
+                    <h3 class="font-semibold">AU Small Bank</h3>
+                    <p id="accountAu">₹0</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Transaction Entry -->
+        <div class="custom-card p-6 mb-8">
+            <h2 class="text-xl font-bold text-indigo-600 mb-4">New Transaction</h2>
+            <form id="transactionForm" class="space-y-4">
+                <div class="grid md:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-gray-700">Transaction Type</label>
+                        <select id="transactionType" class="w-full p-2 border rounded-lg" required>
+                            <option value="">Select Type</option>
+                            <option value="Photo Copy">Photo Copy</option>
+                            <option value="Lamination">Lamination</option>
+                            <option value="Online Form">Online Form</option>
+                            <option value="Phone Money Transfer">Phone Money Transfer</option>
+                            <option value="AEPS">AEPS</option>
+                            <option value="Resume">Resume</option>
+                            <option value="Cash">Cash Payment</option>
+                            <option value="Emitra">Emitra Work</option>
+                            <option value="Other">Other Work</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-gray-700">Account</label>
+                        <select id="account" class="w-full p-2 border rounded-lg" required>
+                            <option value="">Select Account</option>
+                            <option value="Cash">Cash</option>
+                            <option value="Emitra">Emitra</option>
+                            <option value="AEPS">AEPS</option>
+                            <option value="77">Account 77</option>
+                            <option value="197">Account 197</option>
+                            <option value="196">Account 196</option>
+                            <option value="2969">Account 2969</option>
+                            <option value="SBI">SBI Account</option>
+                            <option value="Kotak">Kotak 2529</option>
+                            <option value="AU">AU Small Bank</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-gray-700">Description</label>
+                        <input type="text" id="description" class="w-full p-2 border rounded-lg" required>
+                    </div>
+                    <div>
+                        <label class="block text-gray-700">Amount</label>
+                        <input type="number" id="amount" class="w-full p-2 border rounded-lg" required>
+                    </div>
+                </div>
+                <button type="submit" class="w-full bg-indigo-600 text-white py-2 rounded-lg hover:bg-indigo-700">Add Transaction</button>
+            </form>
+        </div>
+
+        <!-- Transaction History -->
+        <div class="custom-card p-6">
+            <h2 class="text-xl font-bold text-indigo-600 mb-4">Transaction History</h2>
+            <div class="overflow-x-auto">
+                <table class="w-full">
+                    <thead>
+                        <tr class="bg-indigo-50">
+                            <th class="p-2 text-left">Date & Time</th>
+                            <th class="p-2 text-left">Type</th>
+                            <th class="p-2 text-left">Account</th>
+                            <th class="p-2 text-left">Description</th>
+                            <th class="p-2 text-left">Amount</th>
+                        </tr>
+                    </thead>
+                    <tbody id="transactionHistory">
+                        <!-- Transactions will be added here -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Initialize app data
+        let isLoggedIn = false;
+        const appSlug = 'prateek-emitra-' + Math.random().toString(36).substr(2, 9);
+        const whatsappNumber = '7891303829';
+        const loginPassword = '1234';
+        const editPassword = '6284';
+
+        // Login handling
+        document.getElementById('loginForm').addEventListener('submit', (e) => {
+            e.preventDefault();
+            const password = document.getElementById('loginPassword').value;
+            if (password === loginPassword || password === editPassword) {
+                isLoggedIn = true;
+                document.getElementById('loginScreen').style.display = 'none';
+                loadData();
+            } else {
+                alert('Incorrect password');
+            }
+        });
+
+        document.getElementById('forgotPassword').addEventListener('click', () => {
+            alert(`Please contact support at ${whatsappNumber} for password reset`);
+        });
+
+        // Update current date and time
+        function updateDateTime() {
+            const now = new Date();
+            document.getElementById('currentDateTime').textContent = now.toLocaleString();
+        }
+        setInterval(updateDateTime, 1000);
+        updateDateTime();
+
+        // Handle form submission
+        document.getElementById('transactionForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            if (!isLoggedIn) return;
+
+            const transaction = {
+                timestamp: new Date(),
+                type: document.getElementById('transactionType').value,
+                account: document.getElementById('account').value,
+                description: document.getElementById('description').value,
+                amount: parseFloat(document.getElementById('amount').value)
+            };
+
+            try {
+                const response = await fetch('https://r0c8kgwocscg8gsokogwwsw4.zetaverse.one/mongodb', {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': 'Bearer dP4m0Sjx6LOwW3k0TsTEzizU2Jg1',
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        appSlug,
+                        action: 'create',
+                        collection: 'transactions',
+                        data: transaction
+                    })
+                });
+
+                if (response.ok) {
+                    // Send WhatsApp notification (in a real application)
+                    sendWhatsAppNotification(transaction);
+                    
+                    e.target.reset();
+                    loadData();
+                }
+            } catch (error) {
+                console.error('Error saving transaction:', error);
+                alert('Failed to save transaction. Please try again.');
+            }
+        });
+
+        // Load data from database
+        async function loadData() {
+            try {
+                const response = await fetch('https://r0c8kgwocscg8gsokogwwsw4.zetaverse.one/mongodb', {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': 'Bearer dP4m0Sjx6LOwW3k0TsTEzizU2Jg1',
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        appSlug,
+                        action: 'read',
+                        collection: 'transactions'
+                    })
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    updateUI(data.result.read);
+                }
+            } catch (error) {
+                console.error('Error loading data:', error);
+            }
+        }
+
+        // Update UI
+        function updateUI(transactions) {
+            // Update transaction history
+            const history = document.getElementById('transactionHistory');
+            history.innerHTML = transactions
+                .map(t => `
+                    <tr class="border-b">
+                        <td class="p-2">${new Date(t.data.timestamp).toLocaleString()}</td>
+                        <td class="p-2">${t.data.type}</td>
+                        <td class="p-2">${t.data.account}</td>
+                        <td class="p-2">${t.data.description}</td>
+                        <td class="p-2">₹${t.data.amount.toFixed(2)}</td>
+                    </tr>
+                `)
+                .join('');
+
+            // Update balances
+            const balances = calculateBalances(transactions);
+            updateBalanceDisplay(balances);
+        }
+
+        // Calculate balances
+        function calculateBalances(transactions) {
+            const balances = {
+                emitra: 0,
+                cash: 0,
+                aeps: 0,
+                account77: 0,
+                account197: 0,
+                account196: 0,
+                account2969: 0,
+                accountSbi: 0,
+                accountKotak: 0,
+                accountAu: 0
+            };
+
+            transactions.forEach(t => {
+                const amount = t.data.amount;
+                switch (t.data.account) {
+                    case 'Emitra': balances.emitra += amount; break;
+                    case 'Cash': balances.cash += amount; break;
+                    case 'AEPS': balances.aeps += amount; break;
+                    case '77': balances.account77 += amount; break;
+                    case '197': balances.account197 += amount; break;
+                    case '196': balances.account196 += amount; break;
+                    case '2969': balances.account2969 += amount; break;
+                    case 'SBI': balances.accountSbi += amount; break;
+                    case 'Kotak': balances.accountKotak += amount; break;
+                    case 'AU': balances.accountAu += amount; break;
+                }
+            });
+
+            return balances;
+        }
+
+        // Update balance display
+        function updateBalanceDisplay(balances) {
+            document.getElementById('emitraBalance').textContent = `₹${balances.emitra.toFixed(2)}`;
+            document.getElementById('cashBalance').textContent = `₹${balances.cash.toFixed(2)}`;
+            document.getElementById('aepsBalance').textContent = `₹${balances.aeps.toFixed(2)}`;
+        }
+
+        // Simulate WhatsApp notification
+        function sendWhatsAppNotification(transaction) {
+            console.log(`WhatsApp notification would be sent to ${whatsappNumber}`);
+        }
+    </script>
+<script>document.body.addEventListener('wheel', e => { if (!e.ctrlKey) return; e.preventDefault(); return }, { passive: false })</script>
+	</body>
+</html>
